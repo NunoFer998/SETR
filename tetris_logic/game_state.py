@@ -3,6 +3,8 @@
 # ─────────────────────────── constants ──────────────────────────────────────
 
 BOARD_ROWS:  int = 20
+BUFFER_ROWS: int = 4
+TOTAL_ROWS: int = BOARD_ROWS + BUFFER_ROWS
 BOARD_COLS:  int = 10
 PIECE_COUNT: int = 7
 
@@ -26,56 +28,65 @@ class PieceType:
     Empty = 8
 
 
+BAG_TYPES: tuple[int, ...] = (
+    PieceType.I, PieceType.O, PieceType.T,
+    PieceType.S, PieceType.Z, PieceType.J, PieceType.L,
+)
+ 
+
+
 
 # ─────────────────────────── data classes ───────────────────────────────────
 
 class ActivePiece:
-    row:      int = 0
-    col:      int = 0
-    rotation: int = 0
-    type:     int = 0   # PieceType value (int) or _HOLD_EMPTY
-
+    def __init__(self): 
+        self.row:      int = 0
+        self.col:      int = 0
+        self.rotation: int = 0
+        self.type:     int = PieceType.Empty
 
 class PollingState:
     """Set flags here before each call to game_update()."""
-    move_left_activated:  bool = False 
-    move_right_activated: bool = False
-    rotate_ccw_activated: bool = False
-    rotate_cw_activated:  bool = False
-    hard_drop_activated:  bool = False
-    soft_drop_activated:  bool = False #not used (maybe remove later)
-    hold_activated:       bool = False #not used (maybe remove later)
+    def __init__(self):
+        self.move_left_activated:  bool = False 
+        self.move_right_activated: bool = False
+        self.rotate_ccw_activated: bool = False
+        self.rotate_cw_activated:  bool = False
+        self.hard_drop_activated:  bool = False
+        self.soft_drop_activated:  bool = False #not used (maybe remove later)
+        self.hold_activated:       bool = False #not used (maybe remove later)
 
 
 class GameState:
-    polling_state: PollingState
+    def __init__(self):
+        self.polling_state: PollingState = PollingState()
 
-    # Display grid (locked + ghost + active piece merged)
-    grid:        list[list[PieceType]] = [[PieceType.Empty] * BOARD_COLS for _ in range(BOARD_ROWS)]
-    
-    # Settled cells only
-    locked_grid: list[list[PieceType]] = [[PieceType.Empty] * BOARD_COLS for _ in range(BOARD_ROWS)]
-    
+        # Display grid (locked + ghost + active piece merged)
+        self.grid:        list[list[PieceType]] = [[PieceType.Empty] * BOARD_COLS for _ in range(BOARD_ROWS)]
+        
+        # Settled cells only
+        self.locked_grid: list[list[PieceType]] = [[PieceType.Empty] * BOARD_COLS for _ in range(BOARD_ROWS)]
+        
 
-    score:         int = 0
-    active_piece:  ActivePiece
-    next_piece:    int = 0        # PieceType value
-    hold_piece:    int = PieceType.Empty
+        self.score:         int = 0
+        self.active_piece:  ActivePiece = ActivePiece()
+        self.next_piece:    int = 0        # PieceType value
+        self.hold_piece:    int = PieceType.Empty
 
-    hold_locked:   bool = False
+        self.hold_locked:   bool = False
 
-    seven_bag:     list[int] 
-    bag_index:     int = 0
+        self.seven_bag:     list[int] 
+        self.bag_index:     int = 0
 
-    level:         int = 1
-    lines_cleared: int = 0
-    back_to_back:  bool = False
+        self.level:         int = 1
+        self.lines_cleared: int = 0
+        self.back_to_back:  bool = False
 
-    das_direction: int = 0    # -1 left | 0 none | 1 right
-    das_timer:     int = 0
-    arr_timer:     int = 0
+        self.das_direction: int = 0    # -1 left | 0 none | 1 right
+        self.das_timer:     int = 0
+        self.arr_timer:     int = 0
 
-    on_ground:    bool = False
-    lock_timer:    int = 0
-    move_resets:   int = 0
-    gravity_timer: int = 0
+        self.on_ground:    bool = False
+        self.lock_timer:    int = 0
+        self.move_resets:   int = 0
+        self.gravity_timer: int = 0
