@@ -1,0 +1,37 @@
+# ─── External SDKs / dependencies (cloned locally, not committed) ────────
+pico-sdk/
+freertos/FreeRTOS-Kernel/
+
+# ─── Build output ────────────────────────────────────────────────────────
+freertos/build/
+build/
+*.uf2
+*.elf
+*.bin
+*.hex
+*.dis
+*.map
+
+# ─── CMake generated ─────────────────────────────────────────────────────
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+!freertos/CMakeLists.txt
+
+# ─── IDE / editor ────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS junk ─────────────────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
+
+# ─── Python (MicroPython dev) ────────────────────────────────────────────
+__pycache__/
+*.pyc
