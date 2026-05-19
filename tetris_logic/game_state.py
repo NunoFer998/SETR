@@ -10,7 +10,7 @@ PIECE_COUNT: int = 7
 
 DAS_DELAY:  int = 10   # ticks before auto-repeat kicks in
 ARR_DELAY:  int = 2    # ticks between auto-repeat shifts
-LOCK_DELAY: int = 30   # ticks before locking
+LOCK_DELAY: int = 2   # ticks before locking
 MAX_RESETS: int = 10   # move resets allowed before forced lock
 TICK_RATE:  int = 30   # target ticks per second
 
