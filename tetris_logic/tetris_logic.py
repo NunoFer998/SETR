@@ -165,6 +165,30 @@ def game_update(state: GameState) -> bool:
             return False
  
         state.hold_locked = False
+
+    rows_per_tick = _get_gravity_rows_per_tick(state)
+
+    if rows_per_tick > 0:
+        for _ in range(rows_per_tick):
+            if not game_gravity_tick(state):
+                return False
+        state.gravity_timer = 0
+    else:
+        state.gravity_timer += 1
+        if state.gravity_timer >= _get_gravity_ticks(state):
+            state.gravity_timer = 0
+            if not game_gravity_tick(state):
+                return False
+            
+    if ps.soft_drop_activated:
+        candidate = deepcopy(state.active_piece)
+        candidate.row += 1
+        if _piece_fits(state, candidate):
+            state.active_piece  = candidate
+            state.score        += 1          # guideline: 1 pt per soft-drop row
+            state.gravity_timer = 0
+            _maybe_reset_lock(state)
+        ps.soft_drop_activated = False
  
     return True
  
