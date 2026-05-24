@@ -13,6 +13,7 @@
  *   I2C0: SDA=GP0, SCL=GP1   (LSM9DS0 accelerometer @ 0x1D)
  *   SPI0: SCK=GP6, MOSI=GP7  (PCD8544 LCD)
  *   GPIO: CS=GP5, DC=GP4, RST=GP8, BL=GP9
+ *   Buttons: UP=GP10, DOWN=GP11, DIAG(comparator)=GP15
  */
 
 #include <stdio.h>
@@ -51,14 +52,18 @@
 #define LCD_DC_PIN      4
 #define LCD_RST_PIN     8
 #define LCD_BL_PIN      9
+#define LEFT_BUTTON     10
+#define RIGHT_BUTTON    11
+#define LSM_OUT_PIN     15
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Game Constants
  * ═══════════════════════════════════════════════════════════════════════════ */
 #define SQUARE_SIZE     10
-#define SQUARE_Y        ((PCD8544_HEIGHT - SQUARE_SIZE) / 2)
+#define INIT_SQUARE_Y   ((PCD8544_HEIGHT - SQUARE_SIZE) / 2)
 #define DEAD_ZONE       6000
 #define MAX_RAW         16000
+#define BUTTON_STEP     2   /* pixels per frame when a button is held */
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Task Priorities (higher number = higher priority)
@@ -86,8 +91,8 @@
  *  Shared State — Protected by Mutexes
  *
  *  accel_mutex guards accel_x: written by Input, read by Update.
- *  display_mutex guards square_x AND the LCD hardware: written by Update,
- *  read/used by Display.
+ *  display_mutex guards square_x, square_y AND the LCD hardware: written by
+ *  Update, read/used by Display.
  *
  *  This prevents data races and, because FreeRTOS mutexes implement
  *  priority inheritance, avoids unbounded priority inversion.
@@ -95,8 +100,9 @@
 static SemaphoreHandle_t accel_mutex   = NULL;
 static SemaphoreHandle_t display_mutex = NULL;
 
-static volatile int16_t accel_x  = 0;   /* raw accelerometer X reading */
-static volatile int     square_x = 42;  /* LCD column position of square */
+static volatile int16_t accel_x  = 0;            /* raw accelerometer X reading */
+static volatile int     square_x = 42;           /* LCD column position of square */
+static volatile int     square_y = INIT_SQUARE_Y; /* LCD row position of square */
 
 /* LCD handle (global, but display_mutex protects concurrent access) */
 static pcd8544_t lcd;
@@ -168,8 +174,8 @@ static void task_read_input(void *params) {
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Task 2: Update — Compute Square Position (MEDIUM PRIORITY)
  *
- *  Reads accel_x (under accel_mutex), computes the new square position,
- *  then writes square_x (under display_mutex).
+ *  Reads accel_x (under accel_mutex), reads button GPIOs, computes the new
+ *  square position, then writes square_x and square_y (under display_mutex).
  * ═══════════════════════════════════════════════════════════════════════════ */
 static void task_update_square(void *params) {
     (void)params;
@@ -185,6 +191,11 @@ static void task_update_square(void *params) {
             xSemaphoreGive(accel_mutex);
         }
 
+        /* --- Read button / comparator GPIOs (instant, no mutex needed) --- */
+        bool btn_up   = gpio_get(LEFT_BUTTON);   /* GP10 — move up   */
+        bool btn_down = gpio_get(RIGHT_BUTTON);   /* GP11 — move down */
+        bool btn_diag = gpio_get(LSM_OUT_PIN);   /* GP15 — diagonal  */
+
         /* Apply dead zone */
         int x = (int)local_x;
         if (x > DEAD_ZONE) {
@@ -197,15 +208,45 @@ static void task_update_square(void *params) {
             x = 0;
         }
 
-        /* Map to screen position (0 to 84 - SQUARE_SIZE) */
+        /* Map accelerometer to horizontal screen position */
         int max_x = PCD8544_WIDTH - SQUARE_SIZE;
-        int new_pos = (x + MAX_RAW) * max_x / (2 * MAX_RAW);
-        if (new_pos < 0)     new_pos = 0;
-        if (new_pos > max_x) new_pos = max_x;
+        int new_pos_x = (x + MAX_RAW) * max_x / (2 * MAX_RAW);
+        if (new_pos_x < 0)     new_pos_x = 0;
+        if (new_pos_x > max_x) new_pos_x = max_x;
 
-        /* --- Write shared square_x --- */
+        /* --- Compute vertical movement from buttons --- */
+        int max_y = PCD8544_HEIGHT - SQUARE_SIZE;
+        int new_pos_y;
+
+        /* Read current square_y under mutex */
         if (xSemaphoreTake(display_mutex, portMAX_DELAY) == pdTRUE) {
-            square_x = new_pos;
+            new_pos_y = square_y;
+            xSemaphoreGive(display_mutex);
+        } else {
+            new_pos_y = INIT_SQUARE_Y;
+        }
+
+        if (btn_up) {
+            new_pos_y -= BUTTON_STEP;        /* move up */
+        }
+        if (btn_down) {
+            new_pos_y += BUTTON_STEP;        /* move down */
+        }
+        if (btn_diag) {
+            new_pos_y -= BUTTON_STEP;        /* diagonal: up … */
+            new_pos_x += BUTTON_STEP;        /* … and to the right */
+        }
+
+        /* Clamp to screen bounds */
+        if (new_pos_y < 0)     new_pos_y = 0;
+        if (new_pos_y > max_y) new_pos_y = max_y;
+        if (new_pos_x < 0)     new_pos_x = 0;
+        if (new_pos_x > max_x) new_pos_x = max_x;
+
+        /* --- Write shared square_x and square_y --- */
+        if (xSemaphoreTake(display_mutex, portMAX_DELAY) == pdTRUE) {
+            square_x = new_pos_x;
+            square_y = new_pos_y;
             xSemaphoreGive(display_mutex);
         }
     }
@@ -214,7 +255,7 @@ static void task_update_square(void *params) {
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Task 3: Display — Render to LCD (LOWEST PRIORITY)
  *
- *  Reads square_x and exclusively accesses the SPI LCD, both under
+ *  Reads square_x/square_y and exclusively accesses the SPI LCD, all under
  *  display_mutex.  Because this has the lowest priority, the Input and
  *  Update tasks can preempt it at any time (except inside the critical
  *  section where it holds the mutex — and thanks to priority inheritance,
@@ -228,12 +269,13 @@ static void task_display(void *params) {
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_DISPLAY_MS));
 
-        /* --- Critical section: read square_x + write to LCD --- */
+        /* --- Critical section: read square position + write to LCD --- */
         if (xSemaphoreTake(display_mutex, portMAX_DELAY) == pdTRUE) {
-            int pos = square_x;
+            int pos_x = square_x;
+            int pos_y = square_y;
 
             pcd8544_clear(&lcd);
-            pcd8544_fill_rect(&lcd, pos, SQUARE_Y, SQUARE_SIZE, SQUARE_SIZE, 1);
+            pcd8544_fill_rect(&lcd, pos_x, pos_y, SQUARE_SIZE, SQUARE_SIZE, 1);
             pcd8544_show(&lcd);
 
             xSemaphoreGive(display_mutex);
@@ -262,6 +304,20 @@ static void hw_init(void) {
 
     /* ── Accelerometer ────────────────────────────────────────────────────── */
     accel_init();
+
+    /* ── Button / Comparator GPIOs ────────────────────────────────────────── */
+    gpio_init(LEFT_BUTTON);
+    gpio_set_dir(LEFT_BUTTON, GPIO_IN);
+    gpio_pull_down(LEFT_BUTTON);
+
+    gpio_init(RIGHT_BUTTON);
+    gpio_set_dir(RIGHT_BUTTON, GPIO_IN);
+    gpio_pull_down(RIGHT_BUTTON);
+
+    gpio_init(LSM_OUT_PIN);
+    gpio_set_dir(LSM_OUT_PIN, GPIO_IN);
+    gpio_pull_down(LSM_OUT_PIN);
+    printf("[HW] Button GPIOs initialized (GP10, GP11, GP15)\n");
 
     /* ── LCD ──────────────────────────────────────────────────────────────── */
     pcd8544_init(&lcd, SPI_PORT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_BL_PIN, 0x3B);
