@@ -11,7 +11,7 @@
 
 #include "config/project_config.h"
 #include "drivers/lsm9ds0_accel.h"
-#include "pcd8544.h"
+#include "pcd8544/pcd8544.h"
 
 static pcd8544_t lcd;
 

@@ -106,11 +106,6 @@ void pcd8544_fill(pcd8544_t *lcd, uint8_t value) {
 void pcd8544_pixel(pcd8544_t *lcd, int x, int y, uint8_t color) {
     if (x < 0 || x >= PCD8544_WIDTH || y < 0 || y >= PCD8544_HEIGHT)
         return;
-    /*
-     * MONO_VLSB layout: each byte is a vertical column of 8 pixels.
-     * Byte index = x + (y / 8) * WIDTH
-     * Bit position = y % 8  (LSB = top pixel of the 8-row bank)
-     */
     uint16_t idx = x + (y / 8) * PCD8544_WIDTH;
     if (color)
         lcd->buf[idx] |= (1 << (y & 7));

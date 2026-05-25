@@ -33,7 +33,7 @@ add_executable(tetris_freertos
     tasks/display_task.c
     tasks/input_task.c
     tasks/update_task.c
-    pcd8544.c
+    pcd8544/pcd8544.c
 )
 
 target_include_directories(tetris_freertos PRIVATE ${CMAKE_CURRENT_LIST_DIR})

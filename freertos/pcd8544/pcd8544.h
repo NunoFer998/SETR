@@ -23,35 +23,14 @@ typedef struct {
 
 /* ─── Public API ─────────────────────────────────────────────────────────── */
 
-/**
- * Initialize the display hardware and clear the screen.
- * Call once at startup after configuring SPI and GPIO.
- */
 void pcd8544_init(pcd8544_t *lcd, spi_inst_t *spi,
                   uint cs, uint dc, uint rst, uint bl,
                   uint8_t contrast);
-
-/** Reset the display via the RST pin. */
 void pcd8544_reset(pcd8544_t *lcd);
-
-/** Send the entire framebuffer to the display (504 bytes). */
 void pcd8544_show(pcd8544_t *lcd);
-
-/** Clear the framebuffer (all pixels off). */
 void pcd8544_clear(pcd8544_t *lcd);
-
-/** Fill the entire framebuffer with a value (0x00 = off, 0xFF = on). */
 void pcd8544_fill(pcd8544_t *lcd, uint8_t value);
-
-/**
- * Set a single pixel in the framebuffer.
- * @param color  1 = pixel on (dark), 0 = pixel off
- */
 void pcd8544_pixel(pcd8544_t *lcd, int x, int y, uint8_t color);
-
-/**
- * Draw a filled rectangle in the framebuffer.
- */
 void pcd8544_fill_rect(pcd8544_t *lcd, int x, int y, int w, int h, uint8_t color);
 
 #endif /* PCD8544_H */
