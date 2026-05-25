@@ -27,6 +27,12 @@ include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_i
 # ─── Application ─────────────────────────────────────────────────────────────
 add_executable(tetris_freertos
     main.c
+    board/board_init.c
+    drivers/lsm9ds0_accel.c
+    state/game_state.c
+    tasks/display_task.c
+    tasks/input_task.c
+    tasks/update_task.c
     pcd8544.c
 )
 

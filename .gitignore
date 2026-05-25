@@ -11,6 +11,7 @@ build/
 *.hex
 *.dis
 *.map
+pico
 
 # ─── CMake generated ─────────────────────────────────────────────────────
 CMakeCache.txt
