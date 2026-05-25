@@ -5,7 +5,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "config/project_config.h"
-#include "drivers/lsm9ds0_accel.h"
+#include "drivers/lsm/lsm9ds0_accel.h"
 #include "state/game_state.h"
 
 extern game_state_t g_game_state;

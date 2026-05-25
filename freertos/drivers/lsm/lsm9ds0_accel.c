@@ -1,4 +1,4 @@
-#include "drivers/lsm9ds0_accel.h"
+#include "lsm9ds0_accel.h"
 
 #include <stdio.h>
 

@@ -20,7 +20,7 @@ set(FREERTOS_HEAP 4 CACHE STRING "")
 
 # FreeRTOSConfig.h lives in this project directory
 add_library(freertos_config INTERFACE)
-target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/config)
 
 include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
@@ -28,12 +28,12 @@ include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_i
 add_executable(tetris_freertos
     main.c
     board/board_init.c
-    drivers/lsm9ds0_accel.c
+    drivers/lsm/lsm9ds0_accel.c
     state/game_state.c
     tasks/display_task.c
     tasks/input_task.c
     tasks/update_task.c
-    pcd8544/pcd8544.c
+    drivers/pcd8544/pcd8544.c
 )
 
 target_include_directories(tetris_freertos PRIVATE ${CMAKE_CURRENT_LIST_DIR})

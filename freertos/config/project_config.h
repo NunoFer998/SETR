@@ -1,7 +1,7 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
-#include "pcd8544/pcd8544.h"
+#include "drivers/pcd8544/pcd8544.h"
 
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
