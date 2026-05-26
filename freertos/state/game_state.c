@@ -44,10 +44,30 @@ void game_state_get_square_position(game_state_t *state, int *square_x, int *squ
     }
 }
 
-void game_state_set_square_position(game_state_t *state, int square_x, int square_y) {
+void game_state_set_square_position(game_state_t *state, int square_x, int square_y, int rotate) {
     if (xSemaphoreTake(state->display_mutex, portMAX_DELAY) == pdTRUE) {
         state->square_x = square_x;
         state->square_y = square_y;
+        switch (rotate) {
+            case 90:
+                // Rotate 90 degrees clockwise: (x, y) -> (y, -x)
+                state->square_x = square_y;
+                state->square_y = -square_x;
+                break;
+            case 180:
+                // Rotate 180 degrees: (x, y) -> (-x, -y)
+                state->square_x = -square_x;
+                state->square_y = -square_y;
+                break;
+            case 270:
+                // Rotate 270 degrees clockwise: (x, y) -> (-y, x)
+                state->square_x = -square_y;
+                state->square_y = square_x;
+                break;
+            default:
+                // No rotation
+                break;
+        }
         xSemaphoreGive(state->display_mutex);
     }
 }

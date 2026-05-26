@@ -37,6 +37,7 @@ void task_update_square(void *params) {
 
         int max_x = PCD8544_WIDTH - SQUARE_SIZE;
         int new_pos_x = (x + MAX_RAW) * max_x / (2 * MAX_RAW);
+        int rotate = 0;
         if (new_pos_x < 0) new_pos_x = 0;
         if (new_pos_x > max_x) new_pos_x = max_x;
 
@@ -44,14 +45,13 @@ void task_update_square(void *params) {
         int new_pos_y = game_state_get_square_y(&g_game_state);
 
         if (btn_up) {
-            new_pos_y -= BUTTON_STEP;
-        }
-        if (btn_down) {
             new_pos_y += BUTTON_STEP;
         }
-        if (btn_diag) {
-            new_pos_y -= BUTTON_STEP;
+        if (btn_down) {
             new_pos_x += BUTTON_STEP;
+        }
+        if (btn_diag) {
+            rotate = (rotate + 90) % 360; 
         }
 
         if (new_pos_y < 0) new_pos_y = 0;
@@ -59,6 +59,6 @@ void task_update_square(void *params) {
         if (new_pos_x < 0) new_pos_x = 0;
         if (new_pos_x > max_x) new_pos_x = max_x;
 
-        game_state_set_square_position(&g_game_state, new_pos_x, new_pos_y);
+        game_state_set_square_position(&g_game_state, new_pos_x, new_pos_y, rotate);
     }
 }

@@ -24,7 +24,7 @@ void task_display(void *params) {
         game_state_get_square_position(&g_game_state, &pos_x, &pos_y);
 
         pcd8544_clear(lcd);
-        pcd8544_fill_rect(lcd, pos_x, pos_y, SQUARE_SIZE, SQUARE_SIZE, 1);
+        pcd8544_fill_rect(lcd, pos_x, pos_y, SQUARE_SIZE, SQUARE_SIZE * 2, 1);
         pcd8544_show(lcd);
     }
 }
