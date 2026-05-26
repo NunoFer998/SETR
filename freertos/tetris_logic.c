@@ -114,6 +114,27 @@ static void maybe_reset_lock(tetris_state_t *s){
     if(s->on_ground && s->move_resets < TETRIS_MAX_RESETS){ s->lock_timer = 0; s->move_resets++; }
 }
 
+static int get_gravity_rows_per_tick(const tetris_state_t *s){
+    double scale = 1.0;
+    for(int i = 0; i < s->level - 1; i++) {
+        scale *= 0.8 - i * 0.007;
+    }
+    double ticks_per_row = scale * TETRIS_TICK_RATE;
+    if(ticks_per_row < 1.0) {
+        return (int)(1.0 / ticks_per_row) + 1;
+    }
+    return 0;
+}
+
+static int get_gravity_ticks(const tetris_state_t *s){
+    double scale = 1.0;
+    for(int i = 0; i < s->level - 1; i++) {
+        scale *= 0.8 - i * 0.007;
+    }
+    int ticks = (int)(scale * TETRIS_TICK_RATE);
+    return ticks > 0 ? ticks : 1;
+}
+
 void tetris_init(tetris_state_t *s){
     memset(s, 0, sizeof(*s));
     for(int r=0;r<TETRIS_TOTAL_ROWS;r++) for(int c=0;c<TETRIS_BOARD_COLS;c++){ s->grid[r][c]=TETRIS_EMPTY; s->locked[r][c]=TETRIS_EMPTY; }
@@ -195,9 +216,9 @@ bool tetris_update(tetris_state_t *s){
     }
 
     /* Gravity */
-    int rows_per_tick = 0; /* simplified: single-row gravity */
+    int rows_per_tick = get_gravity_rows_per_tick(s);
     if(rows_per_tick>0){ for(int i=0;i<rows_per_tick;i++) if(!tetris_gravity_tick(s)) return false; s->gravity_timer=0; }
-    else { s->gravity_timer++; if(s->gravity_timer >= 1){ s->gravity_timer=0; if(!tetris_gravity_tick(s)) return false; } }
+    else { s->gravity_timer++; if(s->gravity_timer >= get_gravity_ticks(s)){ s->gravity_timer=0; if(!tetris_gravity_tick(s)) return false; } }
 
     if(ps.soft_drop_activated){ tetris_active_piece_t cand = s->active_piece; cand.row++; if(piece_fits(s,&cand)){ s->active_piece=cand; s->score++; s->gravity_timer=0; maybe_reset_lock(s); } s->poll.soft_drop_activated=false; }
 

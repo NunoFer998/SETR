@@ -6,9 +6,10 @@
 #include "task.h"
 #include "config/project_config.h"
 #include "drivers/lsm/lsm9ds0_accel.h"
-#include "state/game_state.h"
+#include "tetris_logic.h"
+#include "hardware/gpio.h"
 
-extern game_state_t g_game_state;
+extern tetris_state_t g_tetris_state;
 
 void task_read_input(void *params) {
     (void)params;
@@ -18,8 +19,21 @@ void task_read_input(void *params) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_INPUT_MS));
 
         int16_t raw_x = accel_read_x();
-        game_state_set_accel_x(&g_game_state, raw_x);
 
-        printf("[INPUT] Accel X: %d\n", raw_x);
+        /* Map accelerometer X to left/right movement */
+        if (raw_x > DEAD_ZONE) {
+            g_tetris_state.poll.move_right_activated = true;
+        } else if (raw_x < -DEAD_ZONE) {
+            g_tetris_state.poll.move_left_activated = true;
+        }
+
+        /* Read buttons and map to tetris actions */
+        bool btn_left = gpio_get(LEFT_BUTTON);
+        bool btn_right = gpio_get(RIGHT_BUTTON);
+        bool btn_diag = gpio_get(LSM_OUT_PIN);
+
+        if (btn_diag) g_tetris_state.poll.rotate_ccw_activated = true;
+        if (btn_right) g_tetris_state.poll.rotate_cw_activated = true;
+        if (btn_left) g_tetris_state.poll.hard_drop_activated = true;
     }
 }

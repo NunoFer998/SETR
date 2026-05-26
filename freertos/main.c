@@ -6,10 +6,10 @@
 
 #include "board/board_init.h"
 #include "config/project_config.h"
-#include "state/game_state.h"
+#include "tetris_logic.h"
 #include "tasks/tasks.h"
 
-game_state_t g_game_state;
+tetris_state_t g_tetris_state;
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     (void)xTask;
@@ -29,13 +29,8 @@ int main(void) {
     printf("╚══════════════════════════════════════════════╝\n");
     printf("\n");
 
-    game_state_init(&g_game_state);
-
-    if (g_game_state.accel_mutex == NULL || g_game_state.display_mutex == NULL) {
-        printf("[FATAL] Failed to create mutexes!\n");
-        return 1;
-    }
-    printf("[RTOS] Mutexes created (priority inheritance enabled)\n");
+    tetris_init(&g_tetris_state);
+    printf("[RTOS] Tetris state initialized\n");
 
     BaseType_t ret;
 

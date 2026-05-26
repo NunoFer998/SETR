@@ -46,8 +46,8 @@
 #define STACK_DISPLAY     512
 
 /* Task periods in milliseconds */
-#define PERIOD_INPUT_MS   30
-#define PERIOD_UPDATE_MS  30
-#define PERIOD_DISPLAY_MS 30
+#define PERIOD_INPUT_MS   20
+#define PERIOD_UPDATE_MS  33
+#define PERIOD_DISPLAY_MS 33
 
 #endif /* PROJECT_CONFIG_H */
