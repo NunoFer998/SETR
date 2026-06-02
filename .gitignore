@@ -12,6 +12,7 @@ build/
 *.dis
 *.map
 pico
+pico/debugprobe
 
 # ─── CMake generated ─────────────────────────────────────────────────────
 CMakeCache.txt
