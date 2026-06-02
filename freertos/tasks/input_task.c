@@ -11,6 +11,11 @@
 
 extern tetris_state_t g_tetris_state;
 
+
+int prev_left_button_state = 1;
+int prev_right_button_state = 1;
+int prev_diag_button_state = 1;
+
 void task_read_input(void *params) {
     (void)params;
     TickType_t last_wake = xTaskGetTickCount();
@@ -30,10 +35,20 @@ void task_read_input(void *params) {
         /* Read buttons and map to tetris actions */
         bool btn_left = gpio_get(LEFT_BUTTON);
         bool btn_right = gpio_get(RIGHT_BUTTON);
-        bool btn_diag = gpio_get(LSM_OUT_PIN);
+        bool mic = gpio_get(LSM_OUT_PIN);
 
-        if (btn_diag) g_tetris_state.poll.rotate_ccw_activated = true;
-        if (btn_right) g_tetris_state.poll.rotate_cw_activated = true;
-        if (btn_left) g_tetris_state.poll.hard_drop_activated = true;
+        if (mic && !prev_diag_button_state) {
+            g_tetris_state.poll.hard_drop_activated = true;
+        }
+        if (btn_right && !prev_right_button_state) {
+            g_tetris_state.poll.rotate_cw_activated = true;
+        }
+        if (btn_left && !prev_left_button_state) {
+            g_tetris_state.poll.rotate_ccw_activated = true;
+        }
+
+        prev_left_button_state = btn_left;
+        prev_right_button_state = btn_right;
+        prev_diag_button_state = mic;
     }
 }

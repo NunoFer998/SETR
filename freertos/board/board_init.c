@@ -36,11 +36,11 @@ void hw_init(void) {
 
     gpio_init(LEFT_BUTTON);
     gpio_set_dir(LEFT_BUTTON, GPIO_IN);
-    gpio_pull_down(LEFT_BUTTON);
+    gpio_pull_up(LEFT_BUTTON);
 
     gpio_init(RIGHT_BUTTON);
     gpio_set_dir(RIGHT_BUTTON, GPIO_IN);
-    gpio_pull_down(RIGHT_BUTTON);
+    gpio_pull_up(RIGHT_BUTTON);
 
     gpio_init(LSM_OUT_PIN);
     gpio_set_dir(LSM_OUT_PIN, GPIO_IN);
