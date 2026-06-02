@@ -38,7 +38,17 @@ void task_display(void *params) {
                     /* +90° rotation: top→right, bottom→left */
                     int x = x_offset + (TETRIS_TOTAL_ROWS - 1 - r) * cell;
                     int y = y_offset + c * cell;
-                    pcd8544_fill_rect(lcd, x, y, cell, cell, 1);
+                    if (grid[r][c] == TETRIS_GHOST) {
+                        for (int yy = 0; yy < cell; yy++) {
+                            for (int xx = 0; xx < cell; xx++) {
+                                if (((xx + yy) & 1) == 0) {
+                                    pcd8544_pixel(lcd, x + xx, y + yy, 1);
+                                }
+                            }
+                        }
+                    } else {
+                        pcd8544_fill_rect(lcd, x, y, cell, cell, 1);
+                    }
                 }
             }
         }
