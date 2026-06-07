@@ -1,4 +1,4 @@
-#include "tasks/tasks.h"
+#include "tasks.h"
 
 #include <stdbool.h>
 
@@ -6,7 +6,7 @@
 #include "task.h"
 #include "hardware/gpio.h"
 
-#include "config/project_config.h"
+#include "project_config.h"
 #include "tetris_logic.h"
 
 extern tetris_state_t g_tetris_state;

@@ -6,7 +6,7 @@
 
 #include "hardware/i2c.h"
 
-#include "config/project_config.h"
+#include "project_config.h"
 
 static inline int16_t read_signed_16(const uint8_t *data, int index) {
     uint16_t raw = (uint16_t)data[index] | ((uint16_t)data[index + 1] << 8);

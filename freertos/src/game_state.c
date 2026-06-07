@@ -1,7 +1,7 @@
 #include "FreeRTOS.h"
 
-#include "config/project_config.h"
-#include "state/game_state.h"
+#include "project_config.h"
+#include "game_state.h"
 
 void game_state_init(game_state_t *state) {
     state->accel_mutex = xSemaphoreCreateMutex();

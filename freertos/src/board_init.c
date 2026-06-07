@@ -1,4 +1,4 @@
-#include "board/board_init.h"
+#include "board_init.h"
 
 #include <stdio.h>
 
@@ -9,9 +9,9 @@
 #include "hardware/spi.h"
 #include "hardware/gpio.h"
 
-#include "config/project_config.h"
-#include "drivers/lsm/lsm9ds0_accel.h"
-#include "drivers/pcd8544/pcd8544.h"
+#include "project_config.h"
+#include "lsm9ds0_accel.h"
+#include "pcd8544.h"
 
 static pcd8544_t lcd;
 

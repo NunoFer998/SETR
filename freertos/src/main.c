@@ -4,10 +4,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board/board_init.h"
-#include "config/project_config.h"
+#include "board_init.h"
+#include "project_config.h"
 #include "tetris_logic.h"
-#include "tasks/tasks.h"
+#include "tasks.h"
 
 tetris_state_t g_tetris_state;
 

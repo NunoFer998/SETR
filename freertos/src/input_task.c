@@ -1,11 +1,11 @@
-#include "tasks/tasks.h"
+#include "tasks.h"
 
 #include <stdio.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "config/project_config.h"
-#include "drivers/lsm/lsm9ds0_accel.h"
+#include "project_config.h"
+#include "lsm9ds0_accel.h"
 #include "tetris_logic.h"
 #include "hardware/gpio.h"
 
