@@ -4,6 +4,7 @@
 #include "pcd8544.h"
 
 void hw_init(void);
+void board_enable_audio_irq(void);
 pcd8544_t *board_get_lcd(void);
 
 #endif /* BOARD_INIT_H */

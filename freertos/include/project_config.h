@@ -49,6 +49,10 @@
 /* Audio task stack size (words) */
 #define STACK_AUDIO       256
 
+/* Audio sporadic server budget and replenishment */
+#define AUDIO_SERVER_BUDGET_EVENTS   1
+#define AUDIO_SERVER_REPLENISH_MS     250
+
 /* Task periods in milliseconds */
 #define PERIOD_INPUT_MS   20
 #define PERIOD_UPDATE_MS  33
