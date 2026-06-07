@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "FreeRTOS.h"
+#include "task.h"
 
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
@@ -12,6 +13,19 @@
 #include "project_config.h"
 #include "lsm9ds0_accel.h"
 #include "pcd8544.h"
+
+/* audio task handle declared in audio_task.c */
+extern TaskHandle_t audio_task_handle;
+
+static void gpio_irq_callback(uint gpio, uint32_t events) {
+    if (gpio == LSM_OUT_PIN && (events & GPIO_IRQ_EDGE_RISE)) {
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        if (audio_task_handle != NULL) {
+            vTaskNotifyGiveFromISR(audio_task_handle, &xHigherPriorityTaskWoken);
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+}
 
 static pcd8544_t lcd;
 
@@ -45,6 +59,8 @@ void hw_init(void) {
     gpio_init(LSM_OUT_PIN);
     gpio_set_dir(LSM_OUT_PIN, GPIO_IN);
     gpio_pull_down(LSM_OUT_PIN);
+    /* Enable rising-edge IRQ and register callback to notify audio task */
+    gpio_set_irq_enabled_with_callback(LSM_OUT_PIN, GPIO_IRQ_EDGE_RISE, true, &gpio_irq_callback);
     printf("[HW] Button GPIOs initialized (GP10, GP11, GP15)\n");
 
     pcd8544_init(&lcd, SPI_PORT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_BL_PIN, 0x3B);

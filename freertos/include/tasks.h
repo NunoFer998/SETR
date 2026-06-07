@@ -4,5 +4,7 @@
 void task_read_input(void *params);
 void task_update_square(void *params);
 void task_display(void *params);
+void task_audio(void *params);
+void task_audio(void *params);
 
 #endif /* TASKS_H */

@@ -46,6 +46,10 @@ int main(void) {
     configASSERT(ret == pdPASS);
     printf("[RTOS] Task 'Display' created — priority %d, period %d ms\n", PRIORITY_DISPLAY, PERIOD_DISPLAY_MS);
 
+    ret = xTaskCreate(task_audio, "Audio", STACK_AUDIO, NULL, PRIORITY_AUDIO, NULL);
+    configASSERT(ret == pdPASS);
+    printf("[RTOS] Task 'Audio'   created — priority %d\n", PRIORITY_AUDIO);
+
     printf("[RTOS] Starting preemptive scheduler...\n\n");
     vTaskStartScheduler();
 

@@ -14,7 +14,12 @@ pico_sdk_init()
 
 # ─── FreeRTOS Kernel ─────────────────────────────────────────────────────────
 # FREERTOS_KERNEL_PATH must point to the cloned FreeRTOS-Kernel directory.
-set(FREERTOS_KERNEL_PATH $ENV{FREERTOS_KERNEL_PATH} CACHE PATH "Path to FreeRTOS Kernel")
+if(DEFINED ENV{FREERTOS_KERNEL_PATH})
+    set(FREERTOS_KERNEL_PATH $ENV{FREERTOS_KERNEL_PATH} CACHE PATH "Path to FreeRTOS Kernel")
+else()
+    # Fall back to the bundled FreeRTOS-Kernel directory inside the project
+    set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-Kernel CACHE PATH "Path to FreeRTOS Kernel")
+endif()
 set(FREERTOS_PORT GCC_RP2040 CACHE STRING "")
 set(FREERTOS_HEAP 4 CACHE STRING "")
 
@@ -33,6 +38,7 @@ add_executable(tetris_freertos
     src/display_task.c
     src/input_task.c
     src/update_task.c
+    src/audio_task.c
     src/tetris_logic.c
     src/pcd8544.c
 )

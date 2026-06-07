@@ -39,11 +39,15 @@
 #define PRIORITY_INPUT    3
 #define PRIORITY_UPDATE   2
 #define PRIORITY_DISPLAY  1
+/* Audio task priority (highest) */
+#define PRIORITY_AUDIO    4
 
 /* Task stack sizes (words) */
 #define STACK_INPUT       512
 #define STACK_UPDATE      512
 #define STACK_DISPLAY     512
+/* Audio task stack size (words) */
+#define STACK_AUDIO       256
 
 /* Task periods in milliseconds */
 #define PERIOD_INPUT_MS   20
