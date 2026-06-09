@@ -52,6 +52,9 @@
 /* Audio sporadic server budget and replenishment */
 #define AUDIO_SERVER_BUDGET_EVENTS   1
 #define AUDIO_SERVER_REPLENISH_MS     250
+/* Maximum number of outstanding replenishment entries.
+ * Must be >= AUDIO_SERVER_BUDGET_EVENTS. */
+#define AUDIO_SERVER_MAX_REPLENISHMENTS  4
 
 /* Task periods in milliseconds */
 #define PERIOD_INPUT_MS   20
