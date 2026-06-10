@@ -220,7 +220,40 @@ bool tetris_update(tetris_state_t *s){
     if(rows_per_tick>0){ for(int i=0;i<rows_per_tick;i++) if(!tetris_gravity_tick(s)) return false; s->gravity_timer=0; }
     else { s->gravity_timer++; if(s->gravity_timer >= get_gravity_ticks(s)){ s->gravity_timer=0; if(!tetris_gravity_tick(s)) return false; } }
 
-    if(ps.soft_drop_activated){ tetris_active_piece_t cand = s->active_piece; cand.row++; if(piece_fits(s,&cand)){ s->active_piece=cand; s->score++; s->gravity_timer=0; maybe_reset_lock(s); } s->poll.soft_drop_activated=false; }
+    /* Soft drop - accelerate falling */
+    if(ps.soft_drop_activated){ 
+        s->poll.soft_drop_activated=false;  // Clear flag immediately
+        
+        tetris_active_piece_t cand = s->active_piece; 
+        cand.row++; 
+        if(piece_fits(s,&cand)){ 
+            // Piece can move down - perform soft drop
+            s->active_piece=cand; 
+            s->score++; 
+            s->gravity_timer=0; 
+            s->on_ground = false;  // Piece is falling, not on ground
+            s->lock_timer = 0;     // Reset lock timer since we're falling
+        } else {
+            // Piece can't move down (reached ground during soft drop)
+            // Lock immediately - no delay for active soft drop
+            lock_piece(s);
+            int lines = clear_lines(s);
+            add_score(s, lines);
+            
+            int locked_row = s->active_piece.row;
+            int locked_type = s->active_piece.type;
+            int locked_rotation = s->active_piece.rotation;
+            
+            s->active_piece.type = s->next_piece;
+            s->next_piece = pull_from_bag(s);
+            s->hold_locked = false;
+            spawn_piece(s->active_piece.type, s);
+            
+            if(is_topped_out(locked_row, locked_type, locked_rotation)) {
+                return false;  // Game over
+            }
+        }
+    }
 
     return true;
 }
