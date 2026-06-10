@@ -28,6 +28,9 @@
 #define RIGHT_BUTTON    11
 #define LSM_OUT_PIN     15
 
+/* Microphone IRQ pin (used to trigger audio-based drops) */
+#define MIC_IRQ_PIN     15
+
 /* Game constants */
 #define SQUARE_SIZE     10
 #define INIT_SQUARE_Y   ((PCD8544_HEIGHT - SQUARE_SIZE) / 2)

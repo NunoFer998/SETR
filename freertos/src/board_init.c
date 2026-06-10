@@ -9,6 +9,7 @@
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
 #include "hardware/gpio.h"
+#include "hardware/irq.h"
 
 #include "project_config.h"
 #include "lsm9ds0_accel.h"
@@ -18,9 +19,23 @@
 /* audio task handle declared in audio_task.c */
 extern TaskHandle_t audio_task_handle;
 
-static void gpio_irq_callback(uint gpio, uint32_t events) {
-    if (gpio == LSM_OUT_PIN && (events & GPIO_IRQ_EDGE_RISE)) {
+/* DEBUG: count every IRQ hit on GP15 (visible from other tasks) */
+volatile uint32_t debug_audio_irq_count = 0;
+volatile uint32_t debug_isr_entry_count = 0;  // Count every ISR entry
+
+/* Raw GPIO IRQ handler for IO_IRQ_BANK0 */
+static void __isr gpio_bank0_irq_handler(void) {
+    debug_isr_entry_count++;  // Increment immediately on ISR entry
+    
+    uint32_t events = gpio_get_irq_event_mask(MIC_IRQ_PIN);
+    
+    if (events & GPIO_IRQ_EDGE_FALL) {
+        // Clear the interrupt immediately
+        gpio_acknowledge_irq(MIC_IRQ_PIN, GPIO_IRQ_EDGE_FALL);
+        
+        debug_audio_irq_count++;
         audio_task_request_drop_from_isr();
+        
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
         if (audio_task_handle != NULL) {
             vTaskNotifyGiveFromISR(audio_task_handle, &xHigherPriorityTaskWoken);
@@ -58,11 +73,10 @@ void hw_init(void) {
     gpio_set_dir(RIGHT_BUTTON, GPIO_IN);
     gpio_pull_up(RIGHT_BUTTON);
 
-    gpio_init(LSM_OUT_PIN);
-    gpio_set_dir(LSM_OUT_PIN, GPIO_IN);
-    gpio_pull_down(LSM_OUT_PIN);
-    /* Register the callback now, but leave the IRQ disabled until the audio task starts. */
-    gpio_set_irq_enabled_with_callback(LSM_OUT_PIN, GPIO_IRQ_EDGE_RISE, false, &gpio_irq_callback);
+    gpio_init(MIC_IRQ_PIN);
+    gpio_set_dir(MIC_IRQ_PIN, GPIO_IN);
+    gpio_pull_up(MIC_IRQ_PIN);
+    /* Will register raw IRQ handler when audio task starts */
     printf("[HW] Button GPIOs initialized (GP10, GP11, GP15)\n");
 
     pcd8544_init(&lcd, SPI_PORT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_BL_PIN, 0x3B);
@@ -70,5 +84,17 @@ void hw_init(void) {
 }
 
 void board_enable_audio_irq(void) {
-    gpio_set_irq_enabled(LSM_OUT_PIN, GPIO_IRQ_EDGE_RISE, true);
+    // Register raw IRQ handler directly (bypass SDK callback wrapper)
+    irq_set_exclusive_handler(IO_IRQ_BANK0, gpio_bank0_irq_handler);
+    
+    // Set IRQ priority to be within FreeRTOS's safe range
+    irq_set_priority(IO_IRQ_BANK0, 192);
+    
+    // Enable the IRQ in NVIC
+    irq_set_enabled(IO_IRQ_BANK0, true);
+    
+    // Enable GPIO interrupt for falling edge
+    gpio_set_irq_enabled(MIC_IRQ_PIN, GPIO_IRQ_EDGE_FALL, true);
+    
+    printf("[HW] Audio IRQ enabled: GP%d FALL edge, priority=192, raw handler\n", MIC_IRQ_PIN);
 }
