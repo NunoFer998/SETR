@@ -58,6 +58,15 @@ void hw_init(void) {
     gpio_set_dir(RIGHT_BUTTON, GPIO_IN);
     gpio_pull_up(RIGHT_BUTTON);
 
+    /* Oscilloscope probe outputs (GP2, GP3) */
+    gpio_init(SCOPE_PIN_INPUT);
+    gpio_set_dir(SCOPE_PIN_INPUT, GPIO_OUT);
+    gpio_put(SCOPE_PIN_INPUT, 0);
+
+    gpio_init(SCOPE_PIN_DISPLAY);
+    gpio_set_dir(SCOPE_PIN_DISPLAY, GPIO_OUT);
+    gpio_put(SCOPE_PIN_DISPLAY, 0);
+
     gpio_init(LSM_OUT_PIN);
     gpio_set_dir(LSM_OUT_PIN, GPIO_IN);
     gpio_pull_down(LSM_OUT_PIN);

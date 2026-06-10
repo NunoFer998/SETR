@@ -8,6 +8,7 @@
 #include "project_config.h"
 #include "tetris_logic.h"
 #include "tasks.h"
+#include "task_trace.h"
 
 tetris_state_t g_tetris_state;
 
@@ -21,6 +22,9 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
 
 int main(void) {
     hw_init();
+
+    /* Wait for USB CDC to enumerate so PuTTY can connect before output starts */
+    sleep_ms(2000);
 
     printf("\n");
     printf("╔══════════════════════════════════════════════╗\n");
@@ -49,6 +53,10 @@ int main(void) {
     ret = xTaskCreate(task_audio, "Audio", STACK_AUDIO, NULL, PRIORITY_AUDIO, NULL);
     configASSERT(ret == pdPASS);
     printf("[RTOS] Task 'Audio'   created — priority %d\n", PRIORITY_AUDIO);
+
+    ret = xTaskCreate(task_trace_dump, "Dump", STACK_DUMP, NULL, PRIORITY_DUMP, NULL);
+    configASSERT(ret == pdPASS);
+    printf("[RTOS] Task 'Dump'    created — priority %d, dumps after %d ms\n", PRIORITY_DUMP, TRACE_COLLECTION_MS);
 
     printf("[RTOS] Starting preemptive scheduler...\n\n");
     vTaskStartScheduler();

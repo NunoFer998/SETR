@@ -8,6 +8,7 @@
 #include "project_config.h"
 #include "board_init.h"
 #include "tetris_logic.h"
+#include "task_trace.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -18,6 +19,10 @@ void task_display(void *params) {
 
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_DISPLAY_MS));
+
+        gpio_put(SCOPE_PIN_DISPLAY, 1);
+        trace_record_release(TRACE_TASK_DISPLAY);
+        uint32_t tidx = trace_record_start(TRACE_TASK_DISPLAY);
 
         /* Render Tetris grid rotated +90°  (game top → screen right).
            After rotation: rows span the x-axis (reversed), cols span the y-axis.
@@ -53,5 +58,8 @@ void task_display(void *params) {
             }
         }
         pcd8544_show(lcd);
+
+        trace_record_end(tidx);
+        gpio_put(SCOPE_PIN_DISPLAY, 0);
     }
 }

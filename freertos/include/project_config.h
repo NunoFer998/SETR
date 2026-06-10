@@ -56,6 +56,17 @@
  * Must be >= AUDIO_SERVER_BUDGET_EVENTS. */
 #define AUDIO_SERVER_MAX_REPLENISHMENTS  4
 
+/* GPIO pins for oscilloscope validation (active-high during execution) */
+#define SCOPE_PIN_INPUT    2    /* GP2 — Input task */
+#define SCOPE_PIN_DISPLAY  3    /* GP3 — Display task */
+
+/* Trace dump task */
+#define PRIORITY_DUMP      0
+#define STACK_DUMP         1024
+
+/* Trace collection period before dump (ms) */
+#define TRACE_COLLECTION_MS  10000
+
 /* Task periods in milliseconds */
 #define PERIOD_INPUT_MS   20
 #define PERIOD_UPDATE_MS  33

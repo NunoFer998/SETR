@@ -8,6 +8,7 @@
 #include "lsm9ds0_accel.h"
 #include "tetris_logic.h"
 #include "hardware/gpio.h"
+#include "task_trace.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -22,6 +23,10 @@ void task_read_input(void *params) {
 
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_INPUT_MS));
+
+        gpio_put(SCOPE_PIN_INPUT, 1);
+        trace_record_release(TRACE_TASK_INPUT);
+        uint32_t tidx = trace_record_start(TRACE_TASK_INPUT);
 
         int16_t raw_x = accel_read_x();
 
@@ -44,5 +49,8 @@ void task_read_input(void *params) {
 
         prev_left_button_state = btn_left;
         prev_right_button_state = btn_right;
+
+        trace_record_end(tidx);
+        gpio_put(SCOPE_PIN_INPUT, 0);
     }
 }

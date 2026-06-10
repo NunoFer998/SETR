@@ -9,6 +9,7 @@
 #include "project_config.h"
 #include "board_init.h"
 #include "tetris_logic.h"
+#include "task_trace.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -76,6 +77,8 @@ void task_audio(void *params) {
             continue;
         }
 
+        uint32_t tidx = trace_record_start(TRACE_TASK_AUDIO);
+
         audio_request_pending = false;
         audio_budget--;
         g_tetris_state.poll.hard_drop_activated = true;
@@ -92,9 +95,12 @@ void task_audio(void *params) {
             xTimerChangePeriod(audio_replenish_timer,
                                pdMS_TO_TICKS(AUDIO_SERVER_REPLENISH_MS), 0);
         }
+
+        trace_record_end(tidx);
     }
 }
 
 void audio_task_request_drop_from_isr(void) {
     audio_request_pending = true;
+    trace_set_release_from_isr(TRACE_TASK_AUDIO);
 }

@@ -39,6 +39,7 @@ add_executable(tetris_freertos
     src/input_task.c
     src/update_task.c
     src/audio_task.c
+    src/task_trace.c
     src/tetris_logic.c
     src/pcd8544.c
 )
