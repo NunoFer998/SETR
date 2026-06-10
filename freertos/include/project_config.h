@@ -53,10 +53,9 @@
 #define STACK_AUDIO       256
 
 /* Audio sporadic server budget and replenishment */
-#define AUDIO_SERVER_BUDGET_EVENTS   1
-#define AUDIO_SERVER_REPLENISH_MS     250
-/* Maximum number of outstanding replenishment entries.
- * Must be >= AUDIO_SERVER_BUDGET_EVENTS. */
+/* Budget is EXECUTION TIME (microseconds), not event count */
+#define AUDIO_SERVER_BUDGET_US        5000   /* 5ms of CPU time per period */
+#define AUDIO_SERVER_PERIOD_MS        1000   /* 1 second replenishment period */
 #define AUDIO_SERVER_MAX_REPLENISHMENTS  4
 
 /* Task periods in milliseconds */
