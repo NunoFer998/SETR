@@ -34,6 +34,8 @@ extern const unsigned char square_image[];
 void display_draw_background(pcd8544_t *lcd);
 void display_draw_board(pcd8544_t *lcd, uint8_t grid[TETRIS_TOTAL_ROWS][TETRIS_BOARD_COLS]);
 void display_draw_number(pcd8544_t *lcd, int x, int y, int value);
+void display_draw_score(pcd8544_t *lcd, int score);
+void display_draw_level(pcd8544_t *lcd, int level);
 void display_draw_hold(pcd8544_t *lcd, int hold_piece);
 void display_draw_next_queue(pcd8544_t *lcd, int next_pieces[], int count);
 
