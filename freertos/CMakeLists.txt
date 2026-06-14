@@ -34,6 +34,7 @@ add_executable(tetris_freertos
     tasks/input_task.c
     tasks/update_task.c
     tetris_logic.c
+    tetris_display/display.c
     drivers/pcd8544/pcd8544.c
 )
 

@@ -8,6 +8,7 @@
 #include "config/project_config.h"
 #include "board/board_init.h"
 #include "tetris_logic.h"
+#include "tetris_display/display.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -19,27 +20,33 @@ void task_display(void *params) {
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_DISPLAY_MS));
 
-        /* Render Tetris grid to the display. Scale each cell to 8x2 pixels. */
+        /* Render using display helpers. Get a snapshot of the display grid
+         * (locked + ghost + active) first — function takes internal mutex. */
         uint8_t grid[TETRIS_TOTAL_ROWS][TETRIS_BOARD_COLS];
         tetris_get_display_grid(&g_tetris_state, grid);
 
-        const int cell_w = 8;
-        const int cell_h = 2;
-        const int total_w = TETRIS_BOARD_COLS * cell_w; /* 80 */
-        const int total_h = TETRIS_TOTAL_ROWS * cell_h; /* 48 */
-        const int x_offset = (PCD8544_WIDTH - total_w) / 2; /* center horizontally */
-        const int y_offset = 0; /* fill vertically */
+        /* Copy other state fields under the state's mutex to avoid races */
+        int score = 0;
+        int level = 0;
+        int hold_piece = TETRIS_EMPTY;
+        int next_pieces[4] = {TETRIS_EMPTY, TETRIS_EMPTY, TETRIS_EMPTY, TETRIS_EMPTY};
 
-        pcd8544_clear(lcd);
-        for (int r = 0; r < TETRIS_TOTAL_ROWS; r++) {
-            for (int c = 0; c < TETRIS_BOARD_COLS; c++) {
-                if (grid[r][c] != TETRIS_EMPTY) {
-                    int x = x_offset + c * cell_w;
-                    int y = y_offset + r * cell_h;
-                    pcd8544_fill_rect(lcd, x, y, cell_w, cell_h, 1);
-                }
-            }
+        /* copy values directly (mutex to be added later) */
+        score = g_tetris_state.score;
+        level = g_tetris_state.level;
+        hold_piece = g_tetris_state.hold_piece;
+        for (int i = 0; i < 4; i++) {
+            int idx = (g_tetris_state.bag_index + i) % TETRIS_PIECE_COUNT;
+            next_pieces[i] = g_tetris_state.seven_bag[idx];
         }
+
+        /* draw */
+        display_draw_background(lcd);
+        display_draw_board(lcd, grid);
+        display_draw_score(lcd, score);
+        display_draw_level(lcd, level);
+        display_draw_hold(lcd, hold_piece);
+        display_draw_next_queue(lcd, next_pieces, 4);
         pcd8544_show(lcd);
     }
 }
