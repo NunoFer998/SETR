@@ -19,17 +19,19 @@ void task_display(void *params) {
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_DISPLAY_MS));
 
-        /* Render Tetris grid rotated +90°  (game top → screen right).
+        /* Render Tetris grid rotated +90° (game top → screen right).
            After rotation: rows span the x-axis (reversed), cols span the y-axis.
-           Square cells for uniform proportions. */
+           Square cells for uniform proportions, edge-to-edge display. */
         uint8_t grid[TETRIS_TOTAL_ROWS][TETRIS_BOARD_COLS];
         tetris_get_display_grid(&g_tetris_state, grid);
 
         const int cell = 3;  /* square: 3×3 px per cell */
         const int total_w = TETRIS_TOTAL_ROWS * cell;  /* 24×3 = 72 */
         const int total_h = TETRIS_BOARD_COLS  * cell;  /* 10×3 = 30 */
-        const int x_offset = (PCD8544_WIDTH  - total_w) / 2;  /* 6 */
-        const int y_offset = (PCD8544_HEIGHT - total_h) / 2;  /* 9 */
+        
+        /* Remove centering - align to edges for full screen usage */
+        const int x_offset = 0;  /* No left margin - start at screen edge */
+        const int y_offset = 0;  /* No top margin - start at screen edge */
 
         pcd8544_clear(lcd);
         for (int r = 0; r < TETRIS_TOTAL_ROWS; r++) {
