@@ -41,6 +41,7 @@ void task_display(void *params) {
         }
 
         /* draw */
+        pcd8544_clear(lcd);
         display_draw_background(lcd);
         display_draw_board(lcd, grid);
         display_draw_score(lcd, score);

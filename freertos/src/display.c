@@ -235,11 +235,12 @@ void display_draw_board(pcd8544_t *lcd, uint8_t grid[TETRIS_TOTAL_ROWS][TETRIS_B
             int y = BOARD_START.y - 1 + sign_y * col * stride_y;
 
             if (v == TETRIS_GHOST) {
-                /* draw a 4x4 hollow square for ghost cells */
-                for (int yy = y; yy < y + 4; yy++) {
-                    for (int xx = x; xx < x + 4; xx++) {
-                        if (yy < 0 || yy >= GAME_HEIGHT || xx < 0 || xx >= GAME_WIDTH) continue;
-                        if (yy == y || yy == y + 3 || xx == x || xx == x + 3) pcd8544_pixel(lcd, xx, yy, 1);
+                /* draw a checkerboard pattern for ghost cells */
+                for (int yy = 0; yy < cell_size; yy++) {
+                    for (int xx = 0; xx < cell_size; xx++) {
+                        if (((xx + yy) & 1) == 0) {
+                            pcd8544_pixel(lcd, x + xx, y + yy, 1);
+                        }
                     }
                 }
             } else {
