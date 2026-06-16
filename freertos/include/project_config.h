@@ -26,7 +26,6 @@
 #define LCD_BL_PIN      9
 #define LEFT_BUTTON     10
 #define RIGHT_BUTTON    11
-#define LSM_OUT_PIN     15
 
 /* Microphone IRQ pin (used to trigger audio-based drops) */
 #define MIC_IRQ_PIN     15
@@ -34,7 +33,7 @@
 /* Game constants */
 #define SQUARE_SIZE     10
 #define INIT_SQUARE_Y   ((PCD8544_HEIGHT - SQUARE_SIZE) / 2)
-#define DEAD_ZONE       6000
+#define DEAD_ZONE       2000   /* Reduced from 6000 for more sensitive tilt */
 #define MAX_RAW         16000
 #define BUTTON_STEP     2
 
@@ -42,7 +41,6 @@
 #define PRIORITY_INPUT    3
 #define PRIORITY_UPDATE   2
 #define PRIORITY_DISPLAY  1
-/* Audio task priority (highest) */
 #define PRIORITY_AUDIO    4
 
 /* Task stack sizes (words) */
@@ -53,7 +51,6 @@
 #define STACK_AUDIO       256
 
 /* Audio sporadic server budget and replenishment */
-/* Budget is EXECUTION TIME (microseconds), not event count */
 #define AUDIO_SERVER_BUDGET_US        5000   /* 5ms of CPU time per period */
 #define AUDIO_SERVER_PERIOD_MS        1000   /* 1 second replenishment period */
 #define AUDIO_SERVER_MAX_REPLENISHMENTS  4
