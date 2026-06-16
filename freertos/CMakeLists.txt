@@ -14,31 +14,37 @@ pico_sdk_init()
 
 # ─── FreeRTOS Kernel ─────────────────────────────────────────────────────────
 # FREERTOS_KERNEL_PATH must point to the cloned FreeRTOS-Kernel directory.
-set(FREERTOS_KERNEL_PATH $ENV{FREERTOS_KERNEL_PATH} CACHE PATH "Path to FreeRTOS Kernel")
+if(DEFINED ENV{FREERTOS_KERNEL_PATH})
+    set(FREERTOS_KERNEL_PATH $ENV{FREERTOS_KERNEL_PATH} CACHE PATH "Path to FreeRTOS Kernel")
+else()
+    # Fall back to the bundled FreeRTOS-Kernel directory inside the project
+    set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_LIST_DIR}/FreeRTOS-Kernel CACHE PATH "Path to FreeRTOS Kernel")
+endif()
 set(FREERTOS_PORT GCC_RP2040 CACHE STRING "")
 set(FREERTOS_HEAP 4 CACHE STRING "")
 
-# FreeRTOSConfig.h lives in this project directory
+# FreeRTOSConfig.h lives in the include directory
 add_library(freertos_config INTERFACE)
-target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/config)
+target_include_directories(freertos_config SYSTEM INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 # ─── Application ─────────────────────────────────────────────────────────────
 add_executable(tetris_freertos
-    main.c
-    board/board_init.c
-    drivers/lsm/lsm9ds0_accel.c
-    state/game_state.c
-    tasks/display_task.c
-    tasks/input_task.c
-    tasks/update_task.c
-    tetris_logic.c
-    tetris_display/display.c
-    drivers/pcd8544/pcd8544.c
+    src/main.c
+    src/board_init.c
+    src/lsm9ds0_accel.c
+    src/game_state.c
+    src/display.c
+    src/display_task.c
+    src/input_task.c
+    src/update_task.c
+    src/audio_task.c
+    src/tetris_logic.c
+    src/pcd8544.c
 )
 
-target_include_directories(tetris_freertos PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(tetris_freertos PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 target_link_libraries(tetris_freertos
     pico_stdlib

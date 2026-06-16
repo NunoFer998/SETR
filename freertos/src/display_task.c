@@ -1,14 +1,14 @@
-#include "tasks/tasks.h"
+#include "tasks.h"
 
 #include <stdio.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "config/project_config.h"
-#include "board/board_init.h"
+#include "project_config.h"
+#include "board_init.h"
 #include "tetris_logic.h"
-#include "tetris_display/display.h"
+#include "display.h"
 
 extern tetris_state_t g_tetris_state;
 

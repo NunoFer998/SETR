@@ -2,7 +2,7 @@
 #define TETRIS_DISPLAY_H
 
 #include <stdint.h>
-#include "drivers/pcd8544/pcd8544.h"
+#include "pcd8544.h"
 #include "tetris_logic.h"
 
 typedef struct {

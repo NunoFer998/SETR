@@ -4,10 +4,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "board/board_init.h"
-#include "config/project_config.h"
+#include "board_init.h"
+#include "project_config.h"
 #include "tetris_logic.h"
-#include "tasks/tasks.h"
+#include "tasks.h"
 
 tetris_state_t g_tetris_state;
 
@@ -45,6 +45,10 @@ int main(void) {
     ret = xTaskCreate(task_display, "Display", STACK_DISPLAY, NULL, PRIORITY_DISPLAY, NULL);
     configASSERT(ret == pdPASS);
     printf("[RTOS] Task 'Display' created — priority %d, period %d ms\n", PRIORITY_DISPLAY, PERIOD_DISPLAY_MS);
+
+    ret = xTaskCreate(task_audio, "Audio", STACK_AUDIO, NULL, PRIORITY_AUDIO, NULL);
+    configASSERT(ret == pdPASS);
+    printf("[RTOS] Task 'Audio'   created — priority %d\n", PRIORITY_AUDIO);
 
     printf("[RTOS] Starting preemptive scheduler...\n\n");
     vTaskStartScheduler();

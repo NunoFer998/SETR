@@ -1,7 +1,7 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
-#include "drivers/pcd8544/pcd8544.h"
+#include "pcd8544.h"
 
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
@@ -28,6 +28,9 @@
 #define RIGHT_BUTTON    11
 #define LSM_OUT_PIN     15
 
+/* Microphone IRQ pin (used to trigger audio-based drops) */
+#define MIC_IRQ_PIN     15
+
 /* Game constants */
 #define SQUARE_SIZE     10
 #define INIT_SQUARE_Y   ((PCD8544_HEIGHT - SQUARE_SIZE) / 2)
@@ -39,11 +42,21 @@
 #define PRIORITY_INPUT    3
 #define PRIORITY_UPDATE   2
 #define PRIORITY_DISPLAY  1
+/* Audio task priority (highest) */
+#define PRIORITY_AUDIO    4
 
 /* Task stack sizes (words) */
 #define STACK_INPUT       512
 #define STACK_UPDATE      512
 #define STACK_DISPLAY     512
+/* Audio task stack size (words) */
+#define STACK_AUDIO       256
+
+/* Audio sporadic server budget and replenishment */
+/* Budget is EXECUTION TIME (microseconds), not event count */
+#define AUDIO_SERVER_BUDGET_US        5000   /* 5ms of CPU time per period */
+#define AUDIO_SERVER_PERIOD_MS        1000   /* 1 second replenishment period */
+#define AUDIO_SERVER_MAX_REPLENISHMENTS  4
 
 /* Task periods in milliseconds */
 #define PERIOD_INPUT_MS   20
