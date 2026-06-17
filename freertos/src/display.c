@@ -163,16 +163,16 @@ static const uint8_t PIECE_TEMPLATES[7][4][4] = {
 static void display_draw_piece_at(pcd8544_t *lcd, int x0, int y0, int piece_type) {
     const int cell_size = 2;
     const int cell_gap = 1;
-    const int stride_x = cell_size + cell_gap;
-    const int stride_y = cell_size + cell_gap;
+    const int stride = cell_size + cell_gap;
 
     if (piece_type < 0 || piece_type > 6) return;
 
     for (int r = 0; r < 4; r++) {
         for (int c = 0; c < 4; c++) {
             if (PIECE_TEMPLATES[piece_type][r][c]) {
-                int x = x0 + c * stride_x;
-                int y = y0 + r * stride_y;
+                /* Rotate +90° to match board: rows → x, cols → y */
+                int x = x0 + r * stride;
+                int y = y0 + c * stride;
                 pcd8544_fill_rect(lcd, x, y, cell_size, cell_size, 1);
             }
         }
