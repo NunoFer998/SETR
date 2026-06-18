@@ -8,8 +8,10 @@
 #include "project_config.h"
 #include "tetris_logic.h"
 #include "tasks.h"
+#include "game_state.h"
 
 tetris_state_t g_tetris_state;
+game_state_t g_game_state;
 
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
     (void)xTask;
@@ -30,7 +32,8 @@ int main(void) {
     printf("\n");
 
     tetris_init(&g_tetris_state);
-    printf("[RTOS] Tetris state initialized\n");
+    game_state_init(&g_game_state);
+    printf("[RTOS] Tetris and game_state initialized\n");
 
     BaseType_t ret;
 

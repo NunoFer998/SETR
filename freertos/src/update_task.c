@@ -8,6 +8,7 @@
 
 #include "project_config.h"
 #include "tetris_logic.h"
+#include "game_state.h"
 
 #include <stdio.h>
 
@@ -49,14 +50,16 @@ void task_update_square(void *params) {
             
             // Check interrupt enable status
             uint32_t irq_status = gpio_get_irq_event_mask(15);
-            
+            game_state_lock_poll(&g_game_state);
+            int soft_drop = g_tetris_state.poll.soft_drop_activated;
+            game_state_unlock_poll(&g_game_state);
             printf("[DBG] ISR_entry=%lu IRQ_count=%lu soft_drop=%d GP15=%d irq_mask=0x%lx budget=%lu us\n",
-                   (unsigned long)debug_isr_entry_count,
-                   (unsigned long)debug_audio_irq_count,
-                   g_tetris_state.poll.soft_drop_activated,
-                   gpio_state,
-                   (unsigned long)irq_status,
-                   (unsigned long)execution_budget_us);
+                (unsigned long)debug_isr_entry_count,
+                (unsigned long)debug_audio_irq_count,
+                soft_drop,
+                gpio_state,
+                (unsigned long)irq_status,
+                (unsigned long)execution_budget_us);
         }
     }
 }

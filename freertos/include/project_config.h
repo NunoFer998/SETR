@@ -38,10 +38,10 @@
 #define BUTTON_STEP     2
 
 /* Task priorities */
-#define PRIORITY_INPUT    3
-#define PRIORITY_UPDATE   2
-#define PRIORITY_DISPLAY  1
-#define PRIORITY_AUDIO    4
+#define PRIORITY_INPUT    4
+#define PRIORITY_UPDATE   3
+#define PRIORITY_DISPLAY  2
+#define PRIORITY_AUDIO    1
 
 /* Task stack sizes (words) */
 #define STACK_INPUT       512

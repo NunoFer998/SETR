@@ -259,11 +259,28 @@ bool tetris_update(tetris_state_t *s){
 }
 
 void tetris_get_display_grid(tetris_state_t *s, uint8_t out_grid[TETRIS_TOTAL_ROWS][TETRIS_BOARD_COLS]){
-    /* copy locked */
+    /* copy locked (caller must hold display mutex to avoid races) */
     for(int r=0;r<TETRIS_TOTAL_ROWS;r++) memcpy(out_grid[r], s->locked[r], TETRIS_BOARD_COLS);
     /* ghost */
-    tetris_active_piece_t ghost = s->active_piece; while(1){ tetris_active_piece_t cand = ghost; cand.row++; if(!piece_fits(s,&cand)) break; ghost=cand; }
-    for(int i=0;i<4;i++){ int r=ghost.row + PIECE_CELLS[ghost.type][ghost.rotation][i][0]; int c=ghost.col + PIECE_CELLS[ghost.type][ghost.rotation][i][1]; if(r>=0 && r<TETRIS_TOTAL_ROWS && c>=0 && c<TETRIS_BOARD_COLS){ if(out_grid[r][c]==TETRIS_EMPTY) out_grid[r][c]=TETRIS_GHOST; } }
+    tetris_active_piece_t ghost = s->active_piece;
+    while (1) {
+        tetris_active_piece_t cand = ghost;
+        cand.row++;
+        if (!piece_fits(s, &cand)) break;
+        ghost = cand;
+    }
+    for(int i=0;i<4;i++){
+        int r = ghost.row + PIECE_CELLS[ghost.type][ghost.rotation][i][0];
+        int c = ghost.col + PIECE_CELLS[ghost.type][ghost.rotation][i][1];
+        if (r>=0 && r<TETRIS_TOTAL_ROWS && c>=0 && c<TETRIS_BOARD_COLS) {
+            if (out_grid[r][c] == TETRIS_EMPTY) out_grid[r][c] = TETRIS_GHOST;
+        }
+    }
     /* active */
-    for(int i=0;i<4;i++){ int r=s->active_piece.row + PIECE_CELLS[s->active_piece.type][s->active_piece.rotation][i][0]; int c=s->active_piece.col + PIECE_CELLS[s->active_piece.type][s->active_piece.rotation][i][1]; if(r>=0 && r<TETRIS_TOTAL_ROWS && c>=0 && c<TETRIS_BOARD_COLS) out_grid[r][c]=s->active_piece.type; }
+    for(int i=0;i<4;i++){
+        int r = s->active_piece.row + PIECE_CELLS[s->active_piece.type][s->active_piece.rotation][i][0];
+        int c = s->active_piece.col + PIECE_CELLS[s->active_piece.type][s->active_piece.rotation][i][1];
+        if (r>=0 && r<TETRIS_TOTAL_ROWS && c>=0 && c<TETRIS_BOARD_COLS) out_grid[r][c] = s->active_piece.type;
+    }
 }
+
