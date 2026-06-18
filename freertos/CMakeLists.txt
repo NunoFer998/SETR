@@ -43,6 +43,7 @@ add_executable(tetris_freertos
     src/tetris_logic.c
     src/pcd8544.c
     src/task_trace.c
+    src/critical_instant_test.c
 )
 
 target_include_directories(tetris_freertos PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)

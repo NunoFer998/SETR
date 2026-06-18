@@ -9,6 +9,10 @@
 #include "tetris_logic.h"
 #include "tasks.h"
 #include "task_trace.h"
+#include "critical_instant_test.h"
+
+/* Set to 1 to run critical instant test, 0 for normal operation */
+#define RUN_CRITICAL_INSTANT_TEST  1
 
 tetris_state_t g_tetris_state;
 
@@ -38,6 +42,26 @@ int main(void) {
 
     BaseType_t ret;
 
+#if RUN_CRITICAL_INSTANT_TEST
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /*                    CRITICAL INSTANT TEST MODE                        */
+    /* ═══════════════════════════════════════════════════════════════════ */
+    printf("\n");
+    printf("╔════════════════════════════════════════════════════════════╗\n");
+    printf("║           RUNNING IN CRITICAL INSTANT TEST MODE           ║\n");
+    printf("║   All tasks will be released simultaneously at t=0         ║\n");
+    printf("║   This tests WORST-CASE response time under maximum       ║\n");
+    printf("║   interference from all other tasks                        ║\n");
+    printf("╚════════════════════════════════════════════════════════════╝\n");
+    printf("\n");
+    
+    run_critical_instant_test();
+    
+#else
+    /* ═══════════════════════════════════════════════════════════════════ */
+    /*                       NORMAL OPERATION MODE                          */
+    /* ═══════════════════════════════════════════════════════════════════ */
+
     ret = xTaskCreate(task_read_input, "Input", STACK_INPUT, NULL, PRIORITY_INPUT, NULL);
     configASSERT(ret == pdPASS);
     printf("[RTOS] Task 'Input'   created — priority %d, period %d ms\n", PRIORITY_INPUT, PERIOD_INPUT_MS);
@@ -57,6 +81,8 @@ int main(void) {
     ret = xTaskCreate(task_trace_dump, "Dump", STACK_DUMP, NULL, PRIORITY_DUMP, NULL);
     configASSERT(ret == pdPASS);
     printf("[RTOS] Task 'Dump'    created — priority %d, dumps after %d ms\n", PRIORITY_DUMP, TRACE_COLLECTION_MS);
+
+#endif  /* RUN_CRITICAL_INSTANT_TEST */
 
     printf("[RTOS] Starting preemptive scheduler...\n\n");
     vTaskStartScheduler();
