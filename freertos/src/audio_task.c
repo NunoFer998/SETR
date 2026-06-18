@@ -10,6 +10,7 @@
 #include "project_config.h"
 #include "board_init.h"
 #include "tetris_logic.h"
+#include "task_trace.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -107,10 +108,10 @@ void task_audio(void *params) {
         /* Mark task as busy - consolidate any interrupts that arrive during processing */
         audio_task_busy = true;
         
-        /* Clear request flag BEFORE processing to catch any new genuine events */
         audio_request_pending = false;
 
         /* SPORADIC SERVER: Measure execution time */
+        uint32_t tidx = trace_record_start(TRACE_TASK_AUDIO);
         uint32_t start_time_us = time_us_32();
         
         /* Perform work - trigger soft drop (accelerated falling) */
@@ -125,6 +126,8 @@ void task_audio(void *params) {
         
         /* Task no longer busy - can accept new events */
         audio_task_busy = false;
+
+        trace_record_end(tidx);
         
         /* Log if execution time is unusually high (debugging) */
         if (execution_time_us > 1000) {  // > 1ms is suspicious for this simple task
@@ -163,6 +166,7 @@ void audio_task_request_drop_from_isr(void) {
     // This consolidates multiple interrupts into one request
     if (!audio_task_busy) {
         audio_request_pending = true;
+        trace_set_release_from_isr(TRACE_TASK_AUDIO);
     }
     // If task is busy, this interrupt is effectively ignored (consolidated)
 }

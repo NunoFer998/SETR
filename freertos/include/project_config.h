@@ -55,6 +55,11 @@
 #define AUDIO_SERVER_PERIOD_MS        1000   /* 1 second replenishment period */
 #define AUDIO_SERVER_MAX_REPLENISHMENTS  4
 
+/* Trace dump task */
+#define PRIORITY_DUMP      0       /* Lowest priority — runs when idle */
+#define STACK_DUMP         1024    /* Needs room for stats_buf + printf */
+#define TRACE_COLLECTION_MS  10000 /* Collect for 10 s then dump CSV   */
+
 /* Task periods in milliseconds */
 #define PERIOD_INPUT_MS   20
 #define PERIOD_UPDATE_MS  33

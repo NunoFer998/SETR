@@ -66,4 +66,12 @@
 #define configNUMBER_OF_CORES                    1
 #define configRUN_MULTIPLE_PRIORITIES             0
 
+/* ─── Run-time stats & trace ─────────────────────────────────────────── */
+#define configGENERATE_RUN_TIME_STATS            1
+#define configUSE_TRACE_FACILITY                 1
+#define configUSE_STATS_FORMATTING_FUNCTIONS     1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() /* RP2040 µs timer auto-starts */
+extern uint32_t get_run_time_counter_value(void);
+#define portGET_RUN_TIME_COUNTER_VALUE()         get_run_time_counter_value()
+
 #endif /* FREERTOS_CONFIG_H */

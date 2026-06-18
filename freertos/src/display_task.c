@@ -9,6 +9,7 @@
 #include "board_init.h"
 #include "tetris_logic.h"
 #include "display.h"
+#include "task_trace.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -19,6 +20,9 @@ void task_display(void *params) {
 
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_DISPLAY_MS));
+
+        trace_record_release(TRACE_TASK_DISPLAY);
+        uint32_t tidx = trace_record_start(TRACE_TASK_DISPLAY);
 
         /* Render using display helpers. Get a snapshot of the display grid
          * (locked + ghost + active) first — function takes internal mutex. */
@@ -49,5 +53,7 @@ void task_display(void *params) {
         display_draw_hold(lcd, hold_piece);
         display_draw_next_queue(lcd, next_pieces, 4);
         pcd8544_show(lcd);
+
+        trace_record_end(tidx);
     }
 }
