@@ -1,11 +1,11 @@
-#include "tasks.h"
+#include "tasks/tasks.h"
 
 #include <stdio.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
-#include "project_config.h"
-#include "lsm9ds0_accel.h"
+#include "config/project_config.h"
+#include "drivers/lsm/lsm9ds0_accel.h"
 #include "tetris_logic.h"
 #include "hardware/gpio.h"
 #include "game_state.h"
@@ -40,6 +40,13 @@ void task_read_input(void *params) {
         /* Read buttons and map to tetris actions */
         bool btn_left = gpio_get(LEFT_BUTTON);
         bool btn_right = gpio_get(RIGHT_BUTTON);
+        bool mic = gpio_get(LSM_OUT_PIN);
+
+        if (mic && !prev_diag_button_state) {
+            game_state_lock_poll(&g_game_state);
+            g_tetris_state.poll.hard_drop_activated = true;
+            game_state_unlock_poll(&g_game_state);
+        }
         if (btn_right && !prev_right_button_state) {
             game_state_lock_poll(&g_game_state);
             g_tetris_state.poll.rotate_cw_activated = true;
@@ -53,5 +60,6 @@ void task_read_input(void *params) {
 
         prev_left_button_state = btn_left;
         prev_right_button_state = btn_right;
+        prev_diag_button_state = mic;
     }
 }

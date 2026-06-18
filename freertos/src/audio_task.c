@@ -10,6 +10,7 @@
 #include "project_config.h"
 #include "board_init.h"
 #include "tetris_logic.h"
+#include "game_state.h"
 
 extern tetris_state_t g_tetris_state;
 
@@ -115,7 +116,9 @@ void task_audio(void *params) {
         
         /* Perform work - trigger soft drop (accelerated falling) */
         /* This allows continuous audio to continuously accelerate the piece */
+        game_state_lock_poll(&g_game_state);
         g_tetris_state.poll.soft_drop_activated = true;
+        game_state_unlock_poll(&g_game_state);
         
         /* Update last drop time for debouncing */
         last_drop_time_ms = current_time_ms;

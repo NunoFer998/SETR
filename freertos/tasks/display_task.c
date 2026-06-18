@@ -1,14 +1,14 @@
-#include "tasks.h"
+#include "tasks/tasks.h"
 
 #include <stdio.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "project_config.h"
-#include "board_init.h"
+#include "config/project_config.h"
+#include "board/board_init.h"
 #include "tetris_logic.h"
-#include "display.h"
+#include "tetris_display/display.h"
 #include "game_state.h"
 
 extern tetris_state_t g_tetris_state;
@@ -21,8 +21,10 @@ void task_display(void *params) {
     for (;;) {
         vTaskDelayUntil(&last_wake, pdMS_TO_TICKS(PERIOD_DISPLAY_MS));
 
-
+        /* Render using display helpers. Get a snapshot of the display grid
+         * (locked + ghost + active) first — function takes internal mutex. */
         uint8_t grid[TETRIS_TOTAL_ROWS][TETRIS_BOARD_COLS];
+        /* single critical section: hold display mutex while taking full snapshot */
         game_state_lock_display(&g_game_state);
         tetris_get_display_grid(&g_tetris_state, grid);
         int score = g_tetris_state.score;
@@ -36,7 +38,6 @@ void task_display(void *params) {
         game_state_unlock_display(&g_game_state);
 
         /* draw */
-        pcd8544_clear(lcd);
         display_draw_background(lcd);
         display_draw_board(lcd, grid);
         display_draw_score(lcd, score);
