@@ -86,14 +86,8 @@ void task_audio(void *params) {
             continue;
         }
 
-        /* Check if we have execution budget available */
         if (execution_budget_us == 0) {
-            /* No budget - defer until replenishment */
             budget_exhausted_count++;
-            if (budget_exhausted_count % 10 == 1) {
-                printf("[AUDIO] Budget exhausted! Deferred %lu events\n", 
-                       (unsigned long)budget_exhausted_count);
-            }
             continue;
         }
 
@@ -129,18 +123,8 @@ void task_audio(void *params) {
         /* Task no longer busy - can accept new events */
         audio_task_busy = false;
         
-        /* Log if execution time is unusually high (debugging) */
-        if (execution_time_us > 1000) {  // > 1ms is suspicious for this simple task
-            printf("[AUDIO] High execution time: %lu us (budget remaining: %lu us)\n",
-                   (unsigned long)execution_time_us,
-                   (unsigned long)execution_budget_us);
-        }
-        
         /* Consume budget (ensure we don't underflow) */
         if (execution_time_us >= execution_budget_us) {
-            printf("[AUDIO] Budget exhausted by single execution! (%lu us consumed, %lu us available)\n",
-                   (unsigned long)execution_time_us,
-                   (unsigned long)execution_budget_us);
             execution_budget_us = 0;
         } else {
             execution_budget_us -= execution_time_us;

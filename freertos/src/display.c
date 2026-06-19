@@ -170,7 +170,6 @@ static void display_draw_piece_at(pcd8544_t *lcd, int x0, int y0, int piece_type
     for (int r = 0; r < 4; r++) {
         for (int c = 0; c < 4; c++) {
             if (PIECE_TEMPLATES[piece_type][r][c]) {
-                /* Rotate +90° to match board: rows → x, cols → y */
                 int x = x0 + r * stride;
                 int y = y0 + c * stride;
                 pcd8544_fill_rect(lcd, x, y, cell_size, cell_size, 1);
@@ -179,7 +178,7 @@ static void display_draw_piece_at(pcd8544_t *lcd, int x0, int y0, int piece_type
     }
 }
 
-/* Draw the hold piece in its configured box */
+
 void display_draw_hold(pcd8544_t *lcd, int hold_piece) {
     if (hold_piece < 0 || hold_piece > 6) return;
     display_draw_piece_at(lcd, HOLD_START.x, HOLD_START.y, hold_piece);

@@ -3,8 +3,6 @@
 #include <string.h>
 #include <time.h>
 
-/* Piece cell definitions copied/transcribed from the Python source. Each piece
-   has 4 rotation states, each state contains 4 (dr,dc) pairs. */
 static const int8_t PIECE_CELLS[TETRIS_PIECE_COUNT][4][4][2] = {
     /* I */
     {{{0,-1},{0,0},{0,1},{0,2}},{{-1,1},{0,1},{1,1},{2,1}},{{1,-1},{1,0},{1,1},{1,2}},{{-1,0},{0,0},{1,0},{2,0}}},
@@ -71,7 +69,6 @@ static int clear_lines(tetris_state_t *s){
             }
             for(int c=0;c<TETRIS_BOARD_COLS;c++) s->locked[0][c] = TETRIS_EMPTY;
             cleared++;
-            /* don't decrement r, re-check same index (rows shifted down) */
         } else {
             r--;
         }
@@ -169,9 +166,7 @@ bool tetris_gravity_tick(tetris_state_t *s){
 }
 
 bool tetris_update(tetris_state_t *s){
-    /* consume polling flags */
-    tetris_poll_t ps = s->poll; /* copy */
-    /* HOLD */
+    tetris_poll_t ps = s->poll; 
     if(ps.hold_activated){
         s->poll.hold_activated = false;
         if(!s->hold_locked){
@@ -197,9 +192,7 @@ bool tetris_update(tetris_state_t *s){
         int old = s->active_piece.rotation; int nw = (old + rotate_dir) & 3;
         if(s->active_piece.type == TETRIS_O){ tetris_active_piece_t cand = s->active_piece; cand.rotation = nw; if(piece_fits(s,&cand)) s->active_piece=cand; }
         else {
-            /* simple kick set: try offsets (0,0) only to keep implementation compact */
             for(int k=0;k<5;k++){
-                /* fallback simple policy: no kicks implemented here for brevity */
                 tetris_active_piece_t cand = s->active_piece; cand.rotation = nw;
                 if(piece_fits(s,&cand)){ s->active_piece=cand; maybe_reset_lock(s); break; }
             }
@@ -227,15 +220,12 @@ bool tetris_update(tetris_state_t *s){
         tetris_active_piece_t cand = s->active_piece; 
         cand.row++; 
         if(piece_fits(s,&cand)){ 
-            // Piece can move down - perform soft drop
             s->active_piece=cand; 
             s->score++; 
             s->gravity_timer=0; 
-            s->on_ground = false;  // Piece is falling, not on ground
-            s->lock_timer = 0;     // Reset lock timer since we're falling
+            s->on_ground = false;  
+            s->lock_timer = 0;     
         } else {
-            // Piece can't move down (reached ground during soft drop)
-            // Lock immediately - no delay for active soft drop
             lock_piece(s);
             int lines = clear_lines(s);
             add_score(s, lines);

@@ -76,11 +76,8 @@ void hw_init(void) {
     gpio_init(MIC_IRQ_PIN);
     gpio_set_dir(MIC_IRQ_PIN, GPIO_IN);
     gpio_pull_up(MIC_IRQ_PIN);
-    /* Will register raw IRQ handler when audio task starts */
-    printf("[HW] Button GPIOs initialized (GP10, GP11, GP15)\n");
 
     pcd8544_init(&lcd, SPI_PORT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_BL_PIN, 0x3B);
-    printf("[HW] PCD8544 LCD initialized\n");
 }
 
 void board_enable_audio_irq(void) {
@@ -95,6 +92,4 @@ void board_enable_audio_irq(void) {
     
     // Enable GPIO interrupt for falling edge
     gpio_set_irq_enabled(MIC_IRQ_PIN, GPIO_IRQ_EDGE_FALL, true);
-    
-    printf("[HW] Audio IRQ enabled: GP%d FALL edge, priority=192, raw handler\n", MIC_IRQ_PIN);
 }

@@ -16,7 +16,6 @@ static inline int16_t read_signed_16(const uint8_t *data, int index) {
 void accel_init(void) {
     uint8_t buf[2] = {0x20, 0x67};
     i2c_write_blocking(I2C_PORT, ACCEL_ADDR, buf, 2, false);
-    printf("[HW] LSM9DS0 accelerometer initialized\n");
 }
 
 int16_t accel_read_x(void) {
