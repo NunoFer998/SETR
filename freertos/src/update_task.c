@@ -53,13 +53,6 @@ void task_update_square(void *params) {
             game_state_lock_poll(&g_game_state);
             int soft_drop = g_tetris_state.poll.soft_drop_activated;
             game_state_unlock_poll(&g_game_state);
-            printf("[DBG] ISR_entry=%lu IRQ_count=%lu soft_drop=%d GP15=%d irq_mask=0x%lx budget=%lu us\n",
-                (unsigned long)debug_isr_entry_count,
-                (unsigned long)debug_audio_irq_count,
-                soft_drop,
-                gpio_state,
-                (unsigned long)irq_status,
-                (unsigned long)execution_budget_us);
         }
     }
 }
