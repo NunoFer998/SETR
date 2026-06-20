@@ -26,7 +26,6 @@ void task_read_input(void *params) {
 
         int16_t raw_x = accel_read_x();
 
-        /* Map accelerometer X to left/right movement */
         if (raw_x > DEAD_ZONE) {
             game_state_lock_poll(&g_game_state);
             g_tetris_state.poll.move_right_activated = true;
@@ -37,7 +36,6 @@ void task_read_input(void *params) {
             game_state_unlock_poll(&g_game_state);
         }
 
-        /* Read buttons and map to tetris actions */
         bool btn_left = gpio_get(LEFT_BUTTON);
         bool btn_right = gpio_get(RIGHT_BUTTON);
         if (btn_right && !prev_right_button_state) {

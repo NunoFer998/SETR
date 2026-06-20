@@ -35,7 +35,6 @@ void task_display(void *params) {
         }
         game_state_unlock_display(&g_game_state);
 
-        /* draw */
         pcd8544_clear(lcd);
         display_draw_background(lcd);
         display_draw_board(lcd, grid);

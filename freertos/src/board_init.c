@@ -16,21 +16,17 @@
 #include "pcd8544.h"
 #include "tasks.h"
 
-/* audio task handle declared in audio_task.c */
 extern TaskHandle_t audio_task_handle;
 
-/* DEBUG: count every IRQ hit on GP15 (visible from other tasks) */
 volatile uint32_t debug_audio_irq_count = 0;
-volatile uint32_t debug_isr_entry_count = 0;  // Count every ISR entry
+volatile uint32_t debug_isr_entry_count = 0;
 
-/* Raw GPIO IRQ handler for IO_IRQ_BANK0 */
 static void __isr gpio_bank0_irq_handler(void) {
-    debug_isr_entry_count++;  // Increment immediately on ISR entry
+    debug_isr_entry_count++;
     
     uint32_t events = gpio_get_irq_event_mask(MIC_IRQ_PIN);
     
     if (events & GPIO_IRQ_EDGE_FALL) {
-        // Clear the interrupt immediately
         gpio_acknowledge_irq(MIC_IRQ_PIN, GPIO_IRQ_EDGE_FALL);
         
         debug_audio_irq_count++;
@@ -81,15 +77,8 @@ void hw_init(void) {
 }
 
 void board_enable_audio_irq(void) {
-    // Register raw IRQ handler directly (bypass SDK callback wrapper)
     irq_set_exclusive_handler(IO_IRQ_BANK0, gpio_bank0_irq_handler);
-    
-    // Set IRQ priority to be within FreeRTOS's safe range
     irq_set_priority(IO_IRQ_BANK0, 192);
-    
-    // Enable the IRQ in NVIC
     irq_set_enabled(IO_IRQ_BANK0, true);
-    
-    // Enable GPIO interrupt for falling edge
     gpio_set_irq_enabled(MIC_IRQ_PIN, GPIO_IRQ_EDGE_FALL, true);
 }

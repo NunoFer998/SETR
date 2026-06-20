@@ -20,7 +20,6 @@ static const int8_t PIECE_CELLS[TETRIS_PIECE_COUNT][4][4][2] = {
     {{{0,-1},{0,0},{0,1},{-1,1}},{{-1,0},{0,0},{1,0},{1,1}},{{0,-1},{0,0},{0,1},{1,-1}},{{-1,-1},{-1,0},{0,0},{1,0}}}
 };
 
-/* Simple bag order (1..7) and helper to shuffle */
 static const int BAG_TYPES[TETRIS_PIECE_COUNT] = {0,1,2,3,4,5,6};
 
 static void shuffle_bag(int bag[TETRIS_PIECE_COUNT]){
@@ -138,7 +137,7 @@ void tetris_init(tetris_state_t *s){
     s->score = 0; s->next_piece = TETRIS_EMPTY; s->hold_piece = TETRIS_EMPTY; s->hold_locked=false;
     s->level=1; s->lines_cleared=0; s->back_to_back=false; s->das_direction=0; s->das_timer=0; s->arr_timer=0;
     s->on_ground=false; s->lock_timer=0; s->move_resets=0; s->gravity_timer=0;
-    /* init rand and bag */
+
     srand((unsigned)time(NULL));
     shuffle_bag(s->seven_bag);
     s->bag_index = 0;
@@ -176,7 +175,7 @@ bool tetris_update(tetris_state_t *s){
         }
     }
 
-    /* DAS / movement */
+
     int new_dir = 0;
     if(ps.move_left_activated) new_dir = -1;
     if(ps.move_right_activated) new_dir = 1;
@@ -184,7 +183,7 @@ bool tetris_update(tetris_state_t *s){
     else if(new_dir!=0){ s->das_timer++; if(s->das_timer>=TETRIS_DAS_DELAY){ s->arr_timer++; if(s->arr_timer>=TETRIS_ARR_DELAY){ s->arr_timer=0; tetris_active_piece_t cand=s->active_piece; cand.col+=new_dir; if(piece_fits(s,&cand)){ s->active_piece=cand; maybe_reset_lock(s); } } } }
     s->poll.move_left_activated = false; s->poll.move_right_activated = false;
 
-    /* Rotation */
+
     int rotate_dir=0;
     if(ps.rotate_cw_activated){ rotate_dir = 1; s->poll.rotate_cw_activated=false; }
     if(ps.rotate_ccw_activated){ rotate_dir = -1; s->poll.rotate_ccw_activated=false; }
@@ -199,7 +198,7 @@ bool tetris_update(tetris_state_t *s){
         }
     }
 
-    /* Hard drop */
+
     if(ps.hard_drop_activated){
         int dropped=0; while(1){ tetris_active_piece_t cand = s->active_piece; cand.row++; if(!piece_fits(s,&cand)) break; s->active_piece=cand; dropped++; }
         s->score += dropped*2; s->poll.hard_drop_activated = false; lock_piece(s); int lines = clear_lines(s); add_score(s, lines);
@@ -208,14 +207,14 @@ bool tetris_update(tetris_state_t *s){
         if(is_topped_out(locked_row, locked_type, locked_rotation)) return false; s->hold_locked=false;
     }
 
-    /* Gravity */
+
     int rows_per_tick = get_gravity_rows_per_tick(s);
     if(rows_per_tick>0){ for(int i=0;i<rows_per_tick;i++) if(!tetris_gravity_tick(s)) return false; s->gravity_timer=0; }
     else { s->gravity_timer++; if(s->gravity_timer >= get_gravity_ticks(s)){ s->gravity_timer=0; if(!tetris_gravity_tick(s)) return false; } }
 
-    /* Soft drop - accelerate falling */
+
     if(ps.soft_drop_activated){ 
-        s->poll.soft_drop_activated=false;  // Clear flag immediately
+        s->poll.soft_drop_activated=false;
         
         tetris_active_piece_t cand = s->active_piece; 
         cand.row++; 
@@ -240,7 +239,7 @@ bool tetris_update(tetris_state_t *s){
             spawn_piece(s->active_piece.type, s);
             
             if(is_topped_out(locked_row, locked_type, locked_rotation)) {
-                return false;  // Game over
+                return false;
             }
         }
     }
@@ -249,9 +248,9 @@ bool tetris_update(tetris_state_t *s){
 }
 
 void tetris_get_display_grid(tetris_state_t *s, uint8_t out_grid[TETRIS_TOTAL_ROWS][TETRIS_BOARD_COLS]){
-    /* copy locked (caller must hold display mutex to avoid races) */
+
     for(int r=0;r<TETRIS_TOTAL_ROWS;r++) memcpy(out_grid[r], s->locked[r], TETRIS_BOARD_COLS);
-    /* ghost */
+
     tetris_active_piece_t ghost = s->active_piece;
     while (1) {
         tetris_active_piece_t cand = ghost;
@@ -266,7 +265,7 @@ void tetris_get_display_grid(tetris_state_t *s, uint8_t out_grid[TETRIS_TOTAL_RO
             if (out_grid[r][c] == TETRIS_EMPTY) out_grid[r][c] = TETRIS_GHOST;
         }
     }
-    /* active */
+
     for(int i=0;i<4;i++){
         int r = s->active_piece.row + PIECE_CELLS[s->active_piece.type][s->active_piece.rotation][i][0];
         int c = s->active_piece.col + PIECE_CELLS[s->active_piece.type][s->active_piece.rotation][i][1];

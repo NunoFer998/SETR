@@ -9,7 +9,7 @@
 /* ─── Display dimensions ─────────────────────────────────────────────────── */
 #define PCD8544_WIDTH   84
 #define PCD8544_HEIGHT  48
-#define PCD8544_BUF_SIZE (PCD8544_WIDTH * PCD8544_HEIGHT / 8)  /* 504 bytes */
+#define PCD8544_BUF_SIZE (PCD8544_WIDTH * PCD8544_HEIGHT / 8)
 
 /* ─── PCD8544 handle ─────────────────────────────────────────────────────── */
 typedef struct {
@@ -18,7 +18,7 @@ typedef struct {
     uint pin_dc;
     uint pin_rst;
     uint pin_bl;
-    uint8_t buf[PCD8544_BUF_SIZE];  /* MONO_VLSB framebuffer */
+    uint8_t buf[PCD8544_BUF_SIZE];
 } pcd8544_t;
 
 /* ─── Public API ─────────────────────────────────────────────────────────── */

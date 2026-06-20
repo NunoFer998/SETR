@@ -14,7 +14,7 @@ const Position HOLD_START = {17, 35};
 const Position NEXT_START = {55, 35};
 const Position NEXT_INCREMENT = {-8, 0};
 
-/* GAME_IMAGE copied from the firmware source (MONO_HLSB, bytes per horizontal row = 11). */
+
 const unsigned char GAME_IMAGE[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x77, 0x07,
@@ -133,7 +133,6 @@ void display_draw_number(pcd8544_t *lcd, int x, int y, int value) {
         value /= 10;
     }
 
-    /* draw most-significant digit first, stacking digits downward (vertical) */
     int ypos = y;
     for (int i = count - 1; i >= 0; i--) {
         draw_digit(lcd, x, ypos, digits[i]);
@@ -149,7 +148,7 @@ void display_draw_level(pcd8544_t *lcd, int level) {
     display_draw_number(lcd, LEVEL_START.x, LEVEL_START.y, level);
 }
 
-/* Piece templates (4x4): I,O,T,S,Z,J,L */
+
 static const uint8_t PIECE_TEMPLATES[7][4][4] = {
     /* I */ {{0,0,0,0},{1,1,1,1},{0,0,0,0},{0,0,0,0}},
     /* O */ {{0,1,1,0},{0,1,1,0},{0,0,0,0},{0,0,0,0}},
@@ -234,7 +233,7 @@ void display_draw_board(pcd8544_t *lcd, uint8_t grid[TETRIS_TOTAL_ROWS][TETRIS_B
             int y = BOARD_START.y - 1 + sign_y * col * stride_y;
 
             if (v == TETRIS_GHOST) {
-                /* draw a checkerboard pattern for ghost cells */
+
                 for (int yy = 0; yy < cell_size; yy++) {
                     for (int xx = 0; xx < cell_size; xx++) {
                         if (((xx + yy) & 1) == 0) {

@@ -12,8 +12,6 @@ void game_state_init(game_state_t *state) {
 }
 
 
-/* Simple lock/unlock wrappers so callers can protect unrelated structures
- * using the existing mutexes (treat accel_mutex as "poll" mutex). */
 void game_state_lock_poll(game_state_t *state) {
     if (state->accel_mutex) xSemaphoreTake(state->accel_mutex, portMAX_DELAY);
 }

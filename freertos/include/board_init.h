@@ -8,7 +8,6 @@ void hw_init(void);
 void board_enable_audio_irq(void);
 pcd8544_t *board_get_lcd(void);
 
-/* Debug counters */
 extern volatile uint32_t debug_audio_irq_count;
 extern volatile uint32_t debug_isr_entry_count;
 

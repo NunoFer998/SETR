@@ -33,7 +33,7 @@
 /* Game constants */
 #define SQUARE_SIZE     10
 #define INIT_SQUARE_Y   ((PCD8544_HEIGHT - SQUARE_SIZE) / 2)
-#define DEAD_ZONE       2000   /* Reduced from 6000 for more sensitive tilt */
+#define DEAD_ZONE       2000
 #define MAX_RAW         16000
 #define BUTTON_STEP     2
 
@@ -47,10 +47,9 @@
 #define STACK_INPUT       512
 #define STACK_UPDATE      512
 #define STACK_DISPLAY     512
-/* Audio task stack size (words) */
 #define STACK_AUDIO       256
 
-/* Audio sporadic server budget and replenishment */
+/* Audio sporadic server */
 #define AUDIO_SERVER_BUDGET_US        5000   /* 5ms of CPU time per period */
 #define AUDIO_SERVER_PERIOD_MS        1000   /* 1 second replenishment period */
 #define AUDIO_SERVER_MAX_REPLENISHMENTS  4
